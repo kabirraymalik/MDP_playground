@@ -8,7 +8,7 @@ GRID_COLS, GRID_ROWS = 4, 3
 SIDE_MARGIN = 100
 TOP_MARGIN = 100
 BUTTON_WIDTH, BUTTON_HEIGHT = 100, 40
-TICK_SPEED = 1000
+TICK_SPEED = 1000 #miliseconds
 # colors
 BG_COLOR      = (255, 253, 208)
 GRID_COLOR    = (0, 0, 128)
@@ -98,7 +98,7 @@ def main():
     display = pygame.display.set_mode((WIDTH, HEIGHT))
 
     clock = pygame.time.Clock()
-    # compute grid area
+    # compute grid attributes
     grid_x = SIDE_MARGIN
     grid_y = TOP_MARGIN
     grid_w = (WIDTH - 2*SIDE_MARGIN) // GRID_COLS * GRID_COLS
@@ -119,21 +119,21 @@ def main():
             # creates grid square with appropriate characteristics from GRID
             row_arr.append(GridSquare(rect, text=f"[{row} , {col}]", mode=GRID[row][col], font=FONT))
         grid.append(row_arr)
-    
+    # create start button 
     def start():
         nonlocal running
         for r in grid:
             for grid_square in r:
                 grid_square.set_random_val()
         running = True
-    
+
     btn_rect = (
         WIDTH - SIDE_MARGIN - BUTTON_WIDTH,
         (TOP_MARGIN - BUTTON_HEIGHT)//2,
         BUTTON_WIDTH, BUTTON_HEIGHT
     )
     start_btn = Button(btn_rect, "start", start, FONT)
-
+    # pre start loop
     while not running:
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
@@ -206,25 +206,24 @@ def main():
             if ev.type == pygame.QUIT:
                 running = False
 
+        if(first == 1):
+            redraw_display(display, step)
+            first = 0
+        
         # update steps
         now = pygame.time.get_ticks()
         if now - last_update >= TICK_SPEED:
             step += 1
+
+            #======================main logic goes here=======================
             for row in grid:
                 for sq in row:
                     sq.increment_val(0.0001)
+            
+            #=================================================================
+
             last_update = now
 
-        if(first == 1):
-            redraw_display(display, step)
-            first = 0
-
-        # game mechanics here
-        """
-        for row in grid:
-            for sq in row:
-                sq.increment_val(0.0001)
-        """
         redraw_display(display, step)
         pygame.display.flip()
         clock.tick(60)
